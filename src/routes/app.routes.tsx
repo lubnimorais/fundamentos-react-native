@@ -17,6 +17,7 @@ const AppRoutes: React.FC = () => (
     screenOptions={{
       headerShown: true,
       cardStyle: { backgroundColor: '#EBEEF8' },
+      headerTitleAlign: 'center',
     }}
     initialRouteName="Dashboard"
   >

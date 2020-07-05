@@ -30,23 +30,73 @@ const CartProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     async function loadProducts(): Promise<void> {
-      // TODO LOAD ITEMS FROM ASYNC STORAGE
+      const produtos = await AsyncStorage.getItem('@Marketplace:products');
+
+      if (produtos) {
+        setProducts([...JSON.parse(produtos)]);
+      }
     }
 
     loadProducts();
   }, []);
 
-  const addToCart = useCallback(async product => {
-    // TODO ADD A NEW ITEM TO THE CART
-  }, []);
+  const addToCart = useCallback(
+    async product => {
+      const produtoTemCarrinho = products.find(prod => prod.id === product.id);
 
-  const increment = useCallback(async id => {
-    // TODO INCREMENTS A PRODUCT QUANTITY IN THE CART
-  }, []);
+      if (produtoTemCarrinho) {
+        const produtos = products.map(prod =>
+          prod.id === product.id
+            ? { ...product, quantity: prod.quantity + 1 }
+            : prod,
+        );
 
-  const decrement = useCallback(async id => {
-    // TODO DECREMENTS A PRODUCT QUANTITY IN THE CART
-  }, []);
+        setProducts(produtos);
+      } else {
+        const adicionarNovoProduto = [...products, { ...product, quantity: 1 }];
+        setProducts(adicionarNovoProduto);
+      }
+
+      await AsyncStorage.setItem(
+        '@Marketplace:products',
+        JSON.stringify(products),
+      );
+    },
+    [products],
+  );
+
+  const increment = useCallback(
+    async id => {
+      const produtos = products.map(prod =>
+        prod.id === id ? { ...prod, quantity: prod.quantity + 1 } : prod,
+      );
+
+      setProducts(produtos);
+
+      await AsyncStorage.setItem(
+        '@Marketplace:products',
+        JSON.stringify(produtos),
+      );
+    },
+    [products],
+  );
+
+  const decrement = useCallback(
+    async id => {
+      const produtos = products.map(prod =>
+        prod.id === id ? { ...prod, quantity: prod.quantity - 1 } : prod,
+      );
+      // .filter(p => p.quantity !== 0);
+
+      setProducts(produtos);
+
+      await AsyncStorage.setItem(
+        '@Marketplace:products',
+        JSON.stringify(produtos),
+      );
+    },
+    [products],
+  );
 
   const value = React.useMemo(
     () => ({ addToCart, increment, decrement, products }),
